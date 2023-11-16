@@ -1,0 +1,26 @@
+<div class="p-3 main-content-p">
+  <h1 class="h2">Series</h1>
+  <app-serie-search-input (resetEmitter)="reset($event)" (itemsEmitter)="getByStr($event)" type="title"></app-serie-search-input>
+
+  <div class="row no-gutters mt-5">
+    @for (item of items; track item.title) {
+      <div class="col-lg-3 col-md-4 col-sm-6 p-1">
+        <div class="card h-100 bg-dark text-light w-auto">
+          <div class="img-container">
+            <img class="custom-img" src={{item.thumbnail.path}}.{{item.thumbnail.extension}} alt="Comic Thumbnail">
+          </div>
+          <div class="card-body">
+            <h5 class="card-title text-center">{{item.title}}</h5>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (showBtn()) {
+    <div class="d-flex justify-content-center my-2 w-100">
+      <button class="btn btn-primary" (click)="loadMore()">Load More</button>
+    </div>
+  }
+
+</div>
