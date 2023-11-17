@@ -1,6 +1,8 @@
 <div class="p-3 main-content-p">
   <h1 class="h2">Characters</h1>
-  <app-character-search-input (resetEmitter)="reset($event)" (itemsEmitter)="getByStr($event)" type="name"></app-character-search-input>
+  <app-character-search-input (resetEmitter)="reset($event)" (itemsEmitter)="getByStr($event)" type="nameStartsWith"
+    [showBtn]="showBtn" [loadMoreSubject]="loadMoreSubject">
+  </app-character-search-input>
 
   <div class="row no-gutters mt-5">
     @for (item of items; track item.name) {

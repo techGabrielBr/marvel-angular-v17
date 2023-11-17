@@ -1,3 +1,4 @@
+import { BehaviorSubject, Subject } from 'rxjs';
 import { Component, signal } from '@angular/core';
 import { ToastrService } from "ngx-toastr";
 import { GenericItemService } from "../../services/generic-item/generic-item.service";
@@ -6,6 +7,8 @@ import { GenericItemService } from "../../services/generic-item/generic-item.ser
   template: ''
 })
 export abstract class GenericItemList<T extends {data:{results: U[], total: number}}, U extends {name?: string, thumbnail: {path: string, extension: string, title?: string}}>{
+  loadMoreSubject: Subject<boolean> = new Subject();
+
   constructor(private genericItemService: GenericItemService<T>, private toastrService: ToastrService){}
 
   items: U[] = [];
@@ -14,19 +17,21 @@ export abstract class GenericItemList<T extends {data:{results: U[], total: numb
   showBtn = signal(false);
 
   private OFFSET_ADD: number = 20;
+  private searchMode = false;
 
   ngOnInit(){
-    this.getItemsFirstTime();
+    this.getItems(true);
   }
 
-  getItemsFirstTime = () =>{
+  getItems = (firstTime: boolean) =>{
     this.showBtn.set(false);
     this.genericItemService.getAll(this.offset).subscribe({
       next: (v: T) => {
-        this.total = v.data.total;
+        firstTime == true ? this.total = v.data.total : null;
         const items = v.data.results;
         this.items = [...this.items, ...items];
-        this.showBtn.set(true);
+
+        items.length >= 20 ? this.showBtn.set(true) : this.showBtn.set(false);
       },
       error: (e) => {
         this.toastrService.error('Error loading content');
@@ -35,24 +40,9 @@ export abstract class GenericItemList<T extends {data:{results: U[], total: numb
     });
   }
 
-  getItems = () =>{
-    this.showBtn.set(false);
-    this.genericItemService.getAll(this.offset).subscribe({
-      next: (v: T) => {
-        const items = v.data.results;
-        this.items = [...this.items, ...items];
-        this.showBtn.set(true);
-      },
-      error: (e) => {
-        this.toastrService.error('Error loading content');
-        this.showBtn.set(false);
-      }
-    });
-  }
-
-  getByStr = (event: U []) =>{
-    this.showBtn.set(false);
-    this.items = event;
+  getByStr = (event: {items: U [], firstTime: boolean}) =>{
+    event.firstTime == true ? this.items = event.items : this.items = [...this.items, ...event.items];
+    this.searchMode = true;
   }
 
   reset = (event: boolean) => {
@@ -60,18 +50,23 @@ export abstract class GenericItemList<T extends {data:{results: U[], total: numb
       this.items = [];
       this.offset = 0;
       this.total = 0;
+      this.searchMode = false;
 
-      this.getItemsFirstTime();
+      this.getItems(true);
     }
   }
 
   loadMore = () => {
-    if((this.total - (this.offset + this.OFFSET_ADD )) > 0){
-      this.offset = this.offset + this.OFFSET_ADD;
-      this.getItems();
-    }else {
-      this.toastrService.info('No more content to load');
-      this.showBtn.set(false);
+    if(this.searchMode == false){
+      if((this.total - (this.offset + this.OFFSET_ADD )) > 0){
+        this.offset = this.offset + this.OFFSET_ADD;
+        this.getItems(false);
+      }else {
+        this.toastrService.info('No more content to load');
+        this.showBtn.set(false);
+      }
+    }else{
+      this.loadMoreSubject.next(true);
     }
   }
 }

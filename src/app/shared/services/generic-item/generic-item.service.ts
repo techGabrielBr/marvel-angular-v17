@@ -22,8 +22,8 @@ export abstract class GenericItemService<T> {
     return this.http.get<T>(`${environment.API_URL}/${this.type}?ts=${ts}&apikey=${this.publicKey}&hash=${this.hashStrService.generateHash(ts)}&offset=${offset}`);
   }
 
-  getByStr(str: string, type: string){
+  getByStr(str: string, type: string, offset: number){
     const ts: number = Date.now();
-    return this.http.get<T>(`${environment.API_URL}/${this.type}?ts=${ts}&apikey=${this.publicKey}&hash=${this.hashStrService.generateHash(ts)}&${type}=${str}`);
+    return this.http.get<T>(`${environment.API_URL}/${this.type}?ts=${ts}&apikey=${this.publicKey}&hash=${this.hashStrService.generateHash(ts)}&${type}=${str}&offset=${offset}`);
   }
 }

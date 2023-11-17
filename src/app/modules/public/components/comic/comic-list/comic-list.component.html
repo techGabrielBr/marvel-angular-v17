@@ -1,6 +1,8 @@
 <div class="p-3 main-content-p">
   <h1 class="h2">Comics</h1>
-  <app-comic-search-input (resetEmitter)="reset($event)" (itemsEmitter)="getByStr($event)" type="title"></app-comic-search-input>
+  <app-comic-search-input (resetEmitter)="reset($event)" (itemsEmitter)="getByStr($event)" type="titleStartsWith" [showBtn]="showBtn"
+    [loadMoreSubject]="loadMoreSubject">
+  </app-comic-search-input>
 
   <div class="row no-gutters mt-5">
     @for (item of items; track item.title) {
